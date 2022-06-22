@@ -14,6 +14,8 @@ class UserController {
 
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 10 * 24 * 60 * 60 * 1000, httpOnly: true });
 
+      delete userData.refreshToken;
+
       return res.status(201).json(userData);
     } catch (e) {
       next(e);
@@ -26,6 +28,8 @@ class UserController {
       const userData = await userService.login(email, password);
 
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 10 * 24 * 60 * 60 * 1000, httpOnly: true });
+
+      delete userData.refreshToken;
 
       return res.status(200).json(userData);
     } catch (e) {
@@ -52,6 +56,8 @@ class UserController {
       const userData = await userService.refresh(refreshToken);
 
       res.cookie('refreshToken', userData.refreshToken, { maxAge: 10 * 24 * 60 * 60 * 1000, httpOnly: true });
+
+      delete userData.refreshToken;
 
       return res.status(200).json(userData);
     } catch (e) {
