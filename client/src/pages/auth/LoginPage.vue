@@ -27,10 +27,24 @@
           </q-input>
         </q-card-section>
 
-        <q-card-actions  class="bg-white text-teal">
-          <q-btn type="submit" color="primary" label="login" :disabled="!isValidData" v-close-popup />
+        <q-card-section v-if="errorMessage" class="q-pt-none">
+          <p class="error-message">{{ errorMessage }}</p>
+        </q-card-section>
+
+        <q-card-actions class="bg-white text-teal">
+          <q-btn
+            type="submit"
+            color="primary"
+            label="login"
+            :disabled="!isValidData"
+          />
           <q-space />
-          <q-btn color="secondary" label="To registration" @click="$router.push('/registration')" v-close-popup />
+          <q-btn
+            color="secondary"
+            label="To registration"
+            @click="$router.push('/registration')"
+            v-close-popup
+          />
         </q-card-actions>
       </q-form>
     </q-card>
@@ -52,15 +66,27 @@ const isPwd = ref(true);
 const password = ref("");
 const email = ref("");
 
+const errorMessage = ref(null);
+
 const isValidData = computed(() => {
   return !!password.value && !!email.value;
-})
+});
 
 const loginUser = async () => {
-  const { data } = await AuthService.login({
+  const { data, response: error } = await AuthService.login({
     email: email.value,
     password: password.value,
   });
+
+  if (error) {
+    errorMessage.value = error.data.message;
+
+    setTimeout(() => {
+      errorMessage.value = null;
+    }, 3000);
+
+    return;
+  }
 
   authStore.setAuth(true);
   authStore.setUser(data.user);

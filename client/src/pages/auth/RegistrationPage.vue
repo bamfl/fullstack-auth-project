@@ -44,8 +44,9 @@
           </q-input>
         </q-card-section>
 
-        <q-card-actions align="right" class="bg-white text-teal">
-        </q-card-actions>
+        <q-card-section v-if="errorMessage" class="q-pt-none">
+          <p class="error-message">{{ errorMessage }}</p>
+        </q-card-section>
 
         <q-card-actions class="bg-white text-teal">
           <q-btn
@@ -53,7 +54,6 @@
             color="primary"
             label="register"
             :disabled="!isValidData"
-            v-close-popup
           />
           <q-space />
           <q-btn
@@ -87,6 +87,8 @@ const isPwdConfirmation = ref(true);
 
 const email = ref("");
 
+const errorMessage = ref(null);
+
 const isValidData = computed(() => {
   if (password.value === passwordConfirmation.value) {
     return !!password.value && !!passwordConfirmation.value && !!email.value;
@@ -96,10 +98,20 @@ const isValidData = computed(() => {
 });
 
 const registerUser = async () => {
-  const { data } = await AuthService.registration({
+  const { data, response: error } = await AuthService.registration({
     email: email.value,
     password: password.value,
   });
+
+  if (error) {
+    errorMessage.value = error.data.message;
+
+    setTimeout(() => {
+      errorMessage.value = null;
+    }, 3000);
+
+    return;
+  }
 
   authStore.setAuth(true);
   authStore.setUser(data.user);
